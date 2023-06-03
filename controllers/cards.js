@@ -41,7 +41,7 @@ const createCard = (req, res) => {
 const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .orFail(() => new Error('Not found'))
-    .then((card) => res.status(201).send(card))
+    .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.message === 'Not found') {
         res
@@ -49,6 +49,8 @@ const deleteCard = (req, res) => {
           .send({
             message: 'Запрашиваемая карточка не найдена',
           });
+      } else if (err.message.includes('failed for value')) {
+        res.status(400).send({ message: 'Вы ввели некоректные данные' });
       } else {
         res
           .status(500)
@@ -76,6 +78,8 @@ const likeCard = (req, res) => {
           .send({
             message: 'Запрашиваемая карточка не найдена',
           });
+      } else if (err.message.includes('failed for value')) {
+        res.status(400).send({ message: 'Вы ввели некоректные данные' });
       } else {
         res
           .status(500)
@@ -95,7 +99,7 @@ const dislikeCard = (req, res) => {
     { new: true },
   )
     .orFail(() => new Error('Not found'))
-    .then((card) => res.status(201).send(card))
+    .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.message === 'Not found') {
         res
@@ -103,6 +107,8 @@ const dislikeCard = (req, res) => {
           .send({
             message: 'Запрашиваемая карточка не найдена',
           });
+      } else if (err.message.includes('failed for value')) {
+        res.status(400).send({ message: 'Вы ввели некоректные данные' });
       } else {
         res
           .status(500)

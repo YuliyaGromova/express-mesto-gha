@@ -61,9 +61,13 @@ const createUser = (req, res) => {
 
 // PATCH /users/me — обновляет профиль
 const updateUser = (req, res) => {
-  User.findByIdAndUpdate(req.user._id, req.body)
+  User.findByIdAndUpdate(req.user._id, req.body, {
+    new: true,
+    runValidators: true,
+    upsert: true,
+  })
     .orFail(() => new Error('Not found'))
-    .then((user) => res.status(201).send(user))
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.message === 'Not found') {
         res
@@ -71,7 +75,7 @@ const updateUser = (req, res) => {
           .send({
             message: 'Запрашиваемый пользователь не найден',
           });
-      } else if (err.message.includes('validation failed')) {
+      } else if (err.message.includes('Validation failed')) {
         res.status(400).send({ message: 'Вы ввели некоректные данные' });
       } else {
         res
