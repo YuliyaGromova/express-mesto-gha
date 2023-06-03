@@ -27,6 +27,8 @@ const getUserById = (req, res) => {
           .send({
             message: 'Запрашиваемый пользователь не найден',
           });
+      } else if (err.message.includes('failed for value')) {
+        res.status(400).send({ message: 'Вы ввели некоректные данные' });
       } else {
         res
           .status(500)
