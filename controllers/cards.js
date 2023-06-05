@@ -1,18 +1,14 @@
 /* eslint-disable semi */
 const Card = require('../models/card');
 
+const { checkError } = require('./errors');
+
 const getCards = async (req, res) => {
   try {
     const cards = await Card.find({});
     res.status(200).send(cards);
   } catch (err) {
-    res
-      .status(500)
-      .send({
-        message: 'Internal Server Error',
-        err: err.message,
-        stack: err.stack,
-      })
+    checkError(err, req, res);
   }
 };
 
@@ -24,17 +20,7 @@ const createCard = (req, res) => {
   })
     .then((card) => res.status(201).send(card))
     .catch((err) => {
-      if (err.message.includes('validation failed')) {
-        res.status(400).send({ message: 'Вы ввели некоректные данные' });
-      } else {
-        res
-          .status(500)
-          .send({
-            message: 'Internal Server Error',
-            err: err.message,
-            stack: err.stack,
-          });
-      }
+      checkError(err, req, res);
     });
 };
 
@@ -43,23 +29,7 @@ const deleteCard = (req, res) => {
     .orFail(() => new Error('Not found'))
     .then((card) => res.status(200).send(card))
     .catch((err) => {
-      if (err.message === 'Not found') {
-        res
-          .status(404)
-          .send({
-            message: 'Запрашиваемая карточка не найдена',
-          });
-      } else if (err.message.includes('failed for value')) {
-        res.status(400).send({ message: 'Вы ввели некоректные данные' });
-      } else {
-        res
-          .status(500)
-          .send({
-            message: 'Internal Server Error',
-            err: err.message,
-            stack: err.stack,
-          });
-      }
+      checkError(err, req, res);
     });
 }
 
@@ -70,54 +40,22 @@ const likeCard = (req, res) => {
     { new: true },
   )
     .orFail(() => new Error('Not found'))
-    .then((card) => res.status(201).send(card))
+    .then((card) => res.status(200).send(card))
     .catch((err) => {
-      if (err.message === 'Not found') {
-        res
-          .status(404)
-          .send({
-            message: 'Запрашиваемая карточка не найдена',
-          });
-      } else if (err.message.includes('failed for value')) {
-        res.status(400).send({ message: 'Вы ввели некоректные данные' });
-      } else {
-        res
-          .status(500)
-          .send({
-            message: 'Internal Server Error',
-            err: err.message,
-            stack: err.stack,
-          });
-      }
+      checkError(err, req, res);
     });
 }
 
 const dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $pull: { likes: req.user._id } }, // убрать _id из массива
+    { $pull: { likes: req.user._id } },
     { new: true },
   )
     .orFail(() => new Error('Not found'))
     .then((card) => res.status(200).send(card))
     .catch((err) => {
-      if (err.message === 'Not found') {
-        res
-          .status(404)
-          .send({
-            message: 'Запрашиваемая карточка не найдена',
-          });
-      } else if (err.message.includes('failed for value')) {
-        res.status(400).send({ message: 'Вы ввели некоректные данные' });
-      } else {
-        res
-          .status(500)
-          .send({
-            message: 'Internal Server Error',
-            err: err.message,
-            stack: err.stack,
-          });
-      }
+      checkError(err, req, res);
     });
 }
 

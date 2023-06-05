@@ -1,43 +1,25 @@
+/* eslint-disable quotes */
+/* eslint-disable comma-dangle */
 /* eslint-disable semi */
-const User = require('../models/user');
+const User = require("../models/user");
+
+const { checkError } = require('./errors');
 
 const getUsers = async (req, res) => {
   try {
     const users = await User.find({});
     res.status(200).send(users);
   } catch (err) {
-    res
-      .status(500)
-      .send({
-        message: 'Internal Server Error',
-        err: err.message,
-        stack: err.stack,
-      })
+    checkError(err, req, res);
   }
 };
 
 const getUserById = (req, res) => {
   User.findById(req.params.id)
-    .orFail(() => new Error('Not found'))
+    .orFail(() => new Error("Not found"))
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.message === 'Not found') {
-        res
-          .status(404)
-          .send({
-            message: 'Запрашиваемый пользователь не найден',
-          });
-      } else if (err.message.includes('failed for value')) {
-        res.status(400).send({ message: 'Вы ввели некоректные данные' });
-      } else {
-        res
-          .status(500)
-          .send({
-            message: 'Internal Server Error',
-            err: err.message,
-            stack: err.stack,
-          });
-      }
+      checkError(err, req, res);
     });
 };
 
@@ -45,53 +27,55 @@ const createUser = (req, res) => {
   User.create(req.body)
     .then((user) => res.status(201).send(user))
     .catch((err) => {
-      if (err.message.includes('validation failed')) {
-        res.status(400).send({ message: 'Вы ввели некоректные данные' });
-      } else {
-        res
-          .status(500)
-          .send({
-            message: 'Internal Server Error',
-            err: err.message,
-            stack: err.stack,
-          });
-      }
+      checkError(err, req, res);
     });
 };
 
 // PATCH /users/me — обновляет профиль
-const updateUser = (req, res) => {
-  User.findByIdAndUpdate(req.user._id, req.body, {
-    new: true,
-    runValidators: true,
-    upsert: true,
-  })
-    .orFail(() => new Error('Not found'))
-    .then((user) => res.status(200).send(user))
-    .catch((err) => {
-      if (err.message === 'Not found') {
-        res
-          .status(404)
-          .send({
-            message: 'Запрашиваемый пользователь не найден',
-          });
-      } else if (err.message.includes('Validation failed')) {
-        res.status(400).send({ message: 'Вы ввели некоректные данные' });
-      } else {
-        res
-          .status(500)
-          .send({
-            message: 'Internal Server Error',
-            err: err.message,
-            stack: err.stack,
-          });
+const updateUserInfo = (req, res) => {
+  if (req.body.name || req.body.about) {
+    User.findByIdAndUpdate(
+      req.user._id,
+      { name: req.body.name, about: req.body.about },
+      {
+        new: true,
+        runValidators: true,
       }
-    });
-}
+    )
+      .orFail(() => new Error("Not found"))
+      .then((user) => res.status(200).send(user))
+      .catch((err) => {
+        checkError(err, req, res);
+      });
+  } else {
+    res.status(400).send({ message: "Вы ввели некоректные данные" });
+  }
+};
+
+const updateUserAvatar = (req, res) => {
+  if (req.body.avatar) {
+    User.findByIdAndUpdate(
+      req.user._id,
+      { avatar: req.body.avatar },
+      {
+        new: true,
+        runValidators: true,
+      }
+    )
+      .orFail(() => new Error("Not found"))
+      .then((user) => res.status(200).send(user))
+      .catch((err) => {
+        checkError(err, req, res);
+      });
+  } else {
+    res.status(400).send({ message: "Вы ввели некоректные данные" });
+  }
+};
 
 module.exports = {
   getUsers,
   getUserById,
   createUser,
-  updateUser,
+  updateUserInfo,
+  updateUserAvatar,
 };
