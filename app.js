@@ -1,6 +1,8 @@
 /* eslint-disable semi */
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable quotes */
+require('dotenv').config();
+
 const express = require("express");
 const mongoose = require("mongoose");
 const router = require("./routes");
@@ -16,13 +18,13 @@ mongoose
 
 app.use(express.json());
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: "647b3abc25bba2699456a918",
-  };
+// app.use((req, res, next) => {
+//   req.user = {
+//     _id: "647b3abc25bba2699456a918",
+//   };
 
-  next();
-});
+//   next();
+// });
 
 app.use(router);
 
