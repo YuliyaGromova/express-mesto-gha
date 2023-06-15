@@ -40,7 +40,7 @@ const createUser = (req, res) => {
       avatar: req.body.avatar,
       email: req.body.email,
       password: hash, // записываем хеш в базу
-    }))
+    })).select('+password')
     .then((user) => res.status(201).send(user))
     .catch((err) => {
       console.log(err);
