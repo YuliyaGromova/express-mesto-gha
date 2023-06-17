@@ -10,6 +10,7 @@ const { ValidationError } = require("../errors/validation-err");
 const { UnauthorizedError } = require("../errors/unauthorized-err");
 const { UniqueError } = require('../errors/unique-err');
 const { InternalServerError } = require('../errors/server-err');
+const { ForbiddenError } = require('../errors/forbidden-err');
 
 const errorHandler = (err, req, res, next) => {
   let error;
@@ -21,6 +22,8 @@ const errorHandler = (err, req, res, next) => {
     error = new UnauthorizedError(err);
   } else if (err.code === 11000) { // 409
     error = new UniqueError(err);
+  } else if (err.name === "ForbiddenError") {
+    error = new ForbiddenError(err);
   } else {
     error = new InternalServerError(err); // 500
   }

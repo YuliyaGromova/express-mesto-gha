@@ -80,28 +80,28 @@ const updateUserAvatar = (req, res, next) => {
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
-  if (email && password) {
-    User.findOne({ email }).select('+password')
-      .orFail(() => new Error("Не верный логин или пароль"))
-      .then((user) => {
-        bcrypt.compare(password, user.password)
-          .then((matched) => {
-          // console.log(matched);
-            if (!matched) {
-            // хеши не совпали — отклоняем промис
-              res.status(403).send({ message: "Не верный логин или пароль" })
-            } else {
-              res.send(user.toJSON);
-              const token = jwt.sign({ _id: User._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret');
-              res.cookie('jwt', token, { maxAge: 3600000 * 24 * 7, httpOnly: true, sameSite: true });
-              res.send({ token });
-            }
-          })
-      })
-      .catch(next);
-  } else {
-    res.status(403).send({ message: "Введите логин и пароль" })
+  if (!email || !password) {
+    res.status(400).send({ message: "Введите логин и пароль" })
+    return;
   }
+  User.findOne({ email }).select('+password')
+    .orFail(() => new Error("Не верный логин или пароль"))
+    .then((user) => {
+      bcrypt.compare(String(password), user.password)
+        .then((matched) => {
+          // console.log(matched);
+          if (!matched) {
+            // хеши не совпали — отклоняем промис
+            res.status(403).send({ message: "Не верный логин или пароль" })
+          } else {
+            // res.send(user);
+            const token = jwt.sign({ _id: User._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret');
+            res.cookie('jwt', token, { maxAge: 3600000 * 24 * 7, httpOnly: true, sameSite: true });
+            res.send({ token });
+          }
+        })
+    })
+    .catch(next);
 };
 
 const getUserInfo = (req, res, next) => {

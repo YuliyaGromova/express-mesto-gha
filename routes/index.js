@@ -4,7 +4,7 @@ const userRoutes = require('./users');
 const cardRoutes = require('./cards');
 const authRoutes = require('./auth');
 
-router.use('/users',auth, userRoutes);
+router.use('/users', auth, userRoutes);
 router.use('/cards', auth, cardRoutes);
 router.use('/', authRoutes);
 
