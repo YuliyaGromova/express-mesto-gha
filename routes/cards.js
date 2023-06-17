@@ -1,3 +1,4 @@
+/* eslint-disable object-curly-newline */
 const router = require('express').Router();
 // eslint-disable-next-line object-curly-newline
 const { getCards, createCard, deleteCard, likeCard, dislikeCard } = require('../controllers/cards');

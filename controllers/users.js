@@ -12,27 +12,23 @@ const User = require("../models/user");
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
-const { checkError } = require('./errors');
-
-const getUsers = async (req, res) => {
+const getUsers = async (req, res, next) => {
   try {
     const users = await User.find({});
     res.status(200).send(users);
   } catch (err) {
-    checkError(err, req, res);
+    next(err);
   }
 };
 
-const getUserById = (req, res) => {
+const getUserById = (req, res, next) => {
   User.findById(req.params.id)
     .orFail(() => new Error("Not found"))
     .then((user) => res.status(200).send(user))
-    .catch((err) => {
-      checkError(err, req, res);
-    });
+    .catch(next);
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   bcrypt.hash(req.body.password, 10)
     .then((hash) => User.create({
       name: req.body.name,
@@ -40,16 +36,13 @@ const createUser = (req, res) => {
       avatar: req.body.avatar,
       email: req.body.email,
       password: hash, // записываем хеш в базу
-    })).select('+password')
+    }))
     .then((user) => res.status(201).send(user))
-    .catch((err) => {
-      console.log(err);
-      checkError(err, req, res);
-    });
+    .catch(next);
 };
 
 // PATCH /users/me — обновляет профиль
-const updateUserInfo = (req, res) => {
+const updateUserInfo = (req, res, next) => {
   if (req.body.name || req.body.about) {
     User.findByIdAndUpdate(
       req.user._id,
@@ -61,15 +54,13 @@ const updateUserInfo = (req, res) => {
     )
       .orFail(() => new Error("Not found"))
       .then((user) => res.status(200).send(user))
-      .catch((err) => {
-        checkError(err, req, res);
-      });
+      .catch(next);
   } else {
     res.status(400).send({ message: "Вы ввели некоректные данные" });
   }
 };
 
-const updateUserAvatar = (req, res) => {
+const updateUserAvatar = (req, res, next) => {
   if (req.body.avatar) {
     User.findByIdAndUpdate(
       req.user._id,
@@ -81,48 +72,43 @@ const updateUserAvatar = (req, res) => {
     )
       .orFail(() => new Error("Not found"))
       .then((user) => res.status(200).send(user))
-      .catch((err) => {
-        checkError(err, req, res);
-      });
+      .catch(next);
   } else {
     res.status(400).send({ message: "Вы ввели некоректные данные" });
   }
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
-  User.findOne({ email }).select('+password')
-    .then((user) => {
-      // console.log(user);
-      if (!user) {
-        return Promise.reject(new Error('Неправильные почта или пароль'));
-      }
-      return bcrypt.compare(password, user.password)
-    })
-    .then((matched) => {
-      // console.log(matched);
-      if (!matched) {
-        // хеши не совпали — отклоняем промис
-        return Promise.reject(new Error('Неправильные почта или пароль'));
-      }
-      const token = jwt.sign({ _id: User._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
-      res.cookie('jwt', token, { maxAge: 3600000 * 24 * 7, httpOnly: true })
-      res.send({ token });
-    })
-    .catch((err) => {
-      res
-        .status(401)
-        .send({ message: err.message });
-    });
+  if (email && password) {
+    User.findOne({ email }).select('+password')
+      .orFail(() => new Error("Не верный логин или пароль"))
+      .then((user) => {
+        bcrypt.compare(password, user.password)
+          .then((matched) => {
+          // console.log(matched);
+            if (!matched) {
+            // хеши не совпали — отклоняем промис
+              res.status(403).send({ message: "Не верный логин или пароль" })
+            } else {
+              res.send(user.toJSON);
+              const token = jwt.sign({ _id: User._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret');
+              res.cookie('jwt', token, { maxAge: 3600000 * 24 * 7, httpOnly: true, sameSite: true });
+              res.send({ token });
+            }
+          })
+      })
+      .catch(next);
+  } else {
+    res.status(403).send({ message: "Введите логин и пароль" })
+  }
 };
 
-const getUserInfo = (req, res) => {
+const getUserInfo = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(() => new Error("Not found"))
     .then((user) => res.status(200).send(user))
-    .catch((err) => {
-      checkError(err, req, res);
-    });
+    .catch(next);
 }
 
 module.exports = {

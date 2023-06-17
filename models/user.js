@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    // validate: [validator.isEmail, 'Вы ввели некорректный email'],
+    validate: [validator.isEmail, 'Вы ввели некорректный email'],
   },
   password: {
     type: String,
@@ -33,5 +33,12 @@ const userSchema = new mongoose.Schema({
     select: false,
   },
 });
+
+// userSchema.methods.toJSON = () => {
+//   const user = this.toObject();
+//   delete user.password;
+
+//   return user;
+// };
 
 module.exports = mongoose.model('user', userSchema);

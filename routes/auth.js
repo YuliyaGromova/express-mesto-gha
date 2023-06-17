@@ -6,8 +6,8 @@ router.post('/signin', login);
 
 router.post('/signup', createUser);
 
-router.all('/*', (req, res) => {
-  res.status(404).send({ message: 'Вы ввели некоректные данные' });
+router.all('/*', (req, res, next) => {
+  next(new Error('Маршрут не найден'));
 });
 
 module.exports = router;

@@ -1,39 +1,33 @@
 /* eslint-disable semi */
 const Card = require('../models/card');
 
-const { checkError } = require('./errors');
-
-const getCards = async (req, res) => {
+const getCards = async (req, res, next) => {
   try {
     const cards = await Card.find({});
     res.status(200).send(cards);
   } catch (err) {
-    checkError(err, req, res);
+    next(err);
   }
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   // console.log(req.user._id);
   Card.create({
     ...req.body,
     owner: req.user._id,
   })
     .then((card) => res.status(201).send(card))
-    .catch((err) => {
-      checkError(err, req, res);
-    });
+    .catch(next);
 };
 
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   Card.findByIdAndRemove(req.params.cardId)
     .orFail(() => new Error('Not found'))
     .then((card) => res.status(200).send(card))
-    .catch((err) => {
-      checkError(err, req, res);
-    });
+    .catch(next);
 }
 
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
@@ -41,12 +35,10 @@ const likeCard = (req, res) => {
   )
     .orFail(() => new Error('Not found'))
     .then((card) => res.status(200).send(card))
-    .catch((err) => {
-      checkError(err, req, res);
-    });
+    .catch(next);
 }
 
-const dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
@@ -54,9 +46,7 @@ const dislikeCard = (req, res) => {
   )
     .orFail(() => new Error('Not found'))
     .then((card) => res.status(200).send(card))
-    .catch((err) => {
-      checkError(err, req, res);
-    });
+    .catch(next);
 }
 
 module.exports = {
