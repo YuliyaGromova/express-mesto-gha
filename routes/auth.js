@@ -6,7 +6,7 @@ const { createUser, login } = require('../controllers/users');
 
 router.post('/signin', celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required().unique(),
+    email: Joi.string().required(),
     password: Joi.string().required(),
   }).unknown(true),
 }), login);
