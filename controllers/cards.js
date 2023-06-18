@@ -11,10 +11,11 @@ const getCards = async (req, res, next) => {
 };
 
 const createCard = (req, res, next) => {
-  // console.log(req.user._id);
+  req.body.owner = req.user._id;
   Card.create({
     ...req.body,
-    owner: req.user._id,
+    // ...req.body,
+    // owner: req.user._id,
   })
     .then((card) => res.status(201).send(card))
     .catch(next);
