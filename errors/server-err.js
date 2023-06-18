@@ -4,10 +4,10 @@
 /* eslint-disable no-sequences */
 /* eslint-disable eol-last */
 class InternalServerError extends Error {// 500
-  constructor(err) {
-    super(err),
+  constructor(message) {
+    super(message),
     this.status = 500,
-    this.message = "Ошибка подключения к серверу"
+    this.message = message || "Ошибка подключения к серверу"
   }
 }
 

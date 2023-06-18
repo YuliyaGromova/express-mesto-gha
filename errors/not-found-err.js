@@ -4,10 +4,10 @@
 /* eslint-disable no-sequences */
 /* eslint-disable eol-last */
 class NotFoundError extends Error {// 404
-  constructor(err) {
-    super(err),
+  constructor(message) {
+    super(message),
     this.status = 404,
-    this.message = "Запрашиваемый объект не найден"
+    this.message = message || "Запрашиваемый объект не найден"
   }
 }
 

@@ -80,12 +80,8 @@ const updateUserAvatar = (req, res, next) => {
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
-  if (!email || !password) {
-    res.status(400).send({ message: "Введите логин и пароль" })
-    return;
-  }
   User.findOne({ email }).select('+password')
-    .orFail(() => new Error("Не верный логин или пароль"))
+    .orFail(() => res.status(403).send({ message: "Не верный логин или пароль" }))
     .then((user) => {
       bcrypt.compare(String(password), user.password)
         .then((matched) => {
@@ -101,7 +97,10 @@ const login = (req, res, next) => {
           }
         })
     })
-    .catch(next);
+    .catch((err) => {
+      console.log("ошибка", err);
+      next(err);
+    })
 };
 
 const getUserInfo = (req, res, next) => {

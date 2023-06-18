@@ -4,10 +4,10 @@
 /* eslint-disable no-sequences */
 /* eslint-disable eol-last */
 class UniqueError extends Error {
-  constructor(err) {
-    super(err),
+  constructor(message) {
+    super(message),
     this.status = 409,
-    this.message = "Пользователь с таким логином уже создан"
+    this.message = message || "Пользователь с таким логином уже создан"
   }
 }
 

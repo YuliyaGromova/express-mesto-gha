@@ -4,10 +4,10 @@
 /* eslint-disable no-sequences */
 /* eslint-disable eol-last */
 class ValidationError extends Error {// 400
-  constructor(err) {
-    super(err),
+  constructor(message) {
+    super(message),
     this.status = 400,
-    this.message = "Вы ввели некоректные данные"
+    this.message = message || "Вы ввели некоректные данные"
   }
 }
 

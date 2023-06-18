@@ -8,6 +8,7 @@ const { errors } = require('celebrate');
 
 const express = require("express");
 const mongoose = require("mongoose");
+
 const cookieParser = require('cookie-parser');
 const router = require("./routes");
 const { errorHandler } = require("./middlewares/error");
@@ -24,9 +25,8 @@ mongoose
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(errors());
 app.use(router);
-
+app.use(errors());
 app.use(errorHandler);
 
 app.listen(PORT, () => {

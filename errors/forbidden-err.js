@@ -4,10 +4,10 @@
 /* eslint-disable no-sequences */
 /* eslint-disable eol-last */
 class ForbiddenError extends Error {// 403
-  constructor(err) {
-    super(err),
+  constructor(message) {
+    super(message),
     this.status = 403,
-    this.message = "Заполните обязательные поля"
+    this.message = message || "Заполните обязательные поля"
   }
 }
 

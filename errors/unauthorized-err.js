@@ -4,10 +4,10 @@
 /* eslint-disable no-sequences */
 /* eslint-disable eol-last */
 class UnauthorizedError extends Error {// 401
-  constructor(err) {
-    super(err),
+  constructor(message) {
+    super(message),
     this.status = 401,
-    this.message = "Необходима авторизация"
+    this.message = message || "Необходима авторизация"
   }
 }
 

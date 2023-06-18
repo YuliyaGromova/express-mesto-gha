@@ -1,3 +1,4 @@
+/* eslint-disable quotes */
 /* eslint-disable comma-dangle */
 /* eslint-disable import/no-extraneous-dependencies */
 const mongoose = require('mongoose');
@@ -23,13 +24,13 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: true,
+    required: [true, "Поле 'Email' обязательное"],
     unique: true,
     validate: [validator.isEmail, 'Вы ввели некорректный email'],
   },
   password: {
     type: String,
-    required: true,
+    required: [true, "Введите пароль"],
     select: false,
   },
 });
