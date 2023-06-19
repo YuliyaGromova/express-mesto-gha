@@ -1,3 +1,6 @@
+/* eslint-disable arrow-parens */
+/* eslint-disable func-names */
+/* eslint-disable object-shorthand */
 /* eslint-disable consistent-return */
 /* eslint-disable no-useless-escape */
 /* eslint-disable quotes */
@@ -5,13 +8,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 const mongoose = require('mongoose');
 const validator = require('validator');
-
-const validateUrl = (url) => {
-  const reGex = /https?:\/\/w?w?w?[a-z.\/0-9\-\_\~\:\/\?\[\]\@\!\$\&\'\(\)\*\+\,\;\=]+#?/g;
-  if (reGex.test(url)) {
-    return url;
-  }
-};
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -28,9 +24,13 @@ const userSchema = new mongoose.Schema({
   },
   avatar: {
     type: String,
-    // validate: [validator.isURL, 'Вы ввели некорректную ссылку на изображение'],
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
-    validate: [validateUrl, 'Введите корректный URL'],
+    validate: {
+      validator: function (v) {
+        return /https?:\/\/w?w?w?[a-z.\/0-9\-\_\~\:\/\?\[\]\@\!\$\&\'\(\)\*\+\,\;\=]+#?/g.test(v);
+      },
+      message: "Вы ввели некорректную ссылку на изображение"
+    },
   },
   email: {
     type: String,
@@ -45,12 +45,5 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-// userSchema.methods.toJSON = () => {
-//   const user = this.toObject();
-//   delete user.password;
-
-//   return user;
-// };
-
 const User = mongoose.model('user', userSchema);
-module.exports = { User, validateUrl };
+module.exports = { User };

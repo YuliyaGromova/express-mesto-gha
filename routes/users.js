@@ -3,7 +3,6 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 const { getUsers, getUserById, updateUserInfo, updateUserAvatar, getUserInfo } = require('../controllers/users');
-const { validateUrl } = require('../models/user');
 
 router.get('/', getUsers);
 
@@ -29,12 +28,13 @@ router.patch('/me', celebrate({
   }).unknown(true),
 }), updateUserInfo);
 
+// +4. не обрабатывается некорректный адрес аватара
 router.patch('/me/avatar', celebrate({
   params: Joi.object().keys({
     id: Joi.string().length(24),
   }),
   body: Joi.object().keys({
-    avatar: Joi.string().custom(validateUrl),
+    avatar: Joi.string(),
   }).unknown(true),
 }), updateUserAvatar);
 
