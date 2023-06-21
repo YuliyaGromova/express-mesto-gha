@@ -24,16 +24,16 @@ const createCard = (req, res, next) => {
 const deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
     .then((item) => {
-      if (item.owner === req.user._id) {
-        Card.findByIdAndRemove(req.params.cardId)
+      if (String(item.owner) === String(req.user._id)) {
+        Card.deleteOne(item)
           .orFail(() => new Error('Not found'))
-          .then((card) => res.status(200).send(card))
+          .then(() => res.status(200).send({ message: "Удаление карточки выполнено"}))
           .catch(next);
       } else {
         res.status(403).send({ message: "Нельзя удалить чужую карточку"})
       }
     })
-    .cath(next);
+    .catch(next);
 }
 
 const likeCard = (req, res, next) => {
