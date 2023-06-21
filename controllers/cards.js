@@ -33,7 +33,7 @@ const deleteCard = (req, res, next) => {
         res.status(403).send({ message: "Нельзя удалить чужую карточку"})
       }
     })
-    .catch(next);
+    .catch(() => res.status(404).send({ message: "Карточка не найдена" }));
 }
 
 const likeCard = (req, res, next) => {
