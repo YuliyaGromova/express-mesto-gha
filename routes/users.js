@@ -1,7 +1,9 @@
+/* eslint-disable no-useless-escape */
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable object-curly-newline */
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
+const { reg } = require('../utils/validate-url-err');
 const { getUsers, getUserById, updateUserInfo, updateUserAvatar, getUserInfo } = require('../controllers/users');
 
 router.get('/', getUsers);
@@ -28,13 +30,12 @@ router.patch('/me', celebrate({
   }).unknown(true),
 }), updateUserInfo);
 
-// +4. не обрабатывается некорректный адрес аватара
 router.patch('/me/avatar', celebrate({
   params: Joi.object().keys({
     id: Joi.string().length(24),
   }),
   body: Joi.object().keys({
-    avatar: Joi.string(),
+    avatar: Joi.string().pattern(reg),
   }).unknown(true),
 }), updateUserAvatar);
 

@@ -6,6 +6,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable spaced-comment */
 const mongoose = require('mongoose');
+// const { validateURL } = require('../utils/validate-url-err');
 
 const cardSchema = new mongoose.Schema({
 
@@ -18,12 +19,6 @@ const cardSchema = new mongoose.Schema({
   link: {
     type: String,
     required: true,
-    validate: {
-      validator: function (v) {
-        return /https?:\/\/w?w?w?[a-z.\/0-9\-\_\~\:\/\?\[\]\@\!\$\&\'\(\)\*\+\,\;\=]+#?/g.test(v);
-      },
-      message: "Вы ввели некорректную ссылку на изображение"
-    },
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
