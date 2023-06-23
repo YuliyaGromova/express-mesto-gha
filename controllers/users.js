@@ -11,11 +11,13 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// const { UnauthorizedError } = require('../errors/unauthorized-err');
 const { NotFoundError } = require('../errors/not-found-err');
+const { UniqueError } = require('../errors/unique-err');
+const { ForbiddenError } = require('../errors/forbidden-err');
+const { ValidationError } = require('../errors/validation-err');
+const { UnauthorizedError } = require('../errors/unauthorized-err');
 
 const { User } = require("../models/user");
-const { UnauthorizedError } = require('../errors/unauthorized-err');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -50,7 +52,13 @@ const createUser = (req, res, next) => {
       about: user.about,
       avatar: user.avatar,
     },))
-    .catch(next);
+    .catch((err) => {
+      if (err.code === 11000) { // 409
+        next(new UniqueError());
+      } else {
+        next(err);
+      }
+    });
 };
 
 // PATCH /users/me — обновляет профиль
@@ -65,7 +73,15 @@ const updateUserInfo = (req, res, next) => {
   )
     .orFail(() => new NotFoundError())
     .then((user) => res.send(user))
-    .catch(next);
+    .catch((err) => {
+      if (err.name === "ForbiddenError") {
+        next(new ForbiddenError());
+      } else if (err.name === "ValidationError" || err.name === "CastError") { // 400
+        next(new ValidationError());
+      } else {
+        next(err);
+      }
+    });
 };
 
 const updateUserAvatar = (req, res, next) => {

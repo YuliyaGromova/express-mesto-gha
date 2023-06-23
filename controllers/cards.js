@@ -46,7 +46,7 @@ const likeCard = (req, res, next) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
-    .orFail(() => new Error('Not found'))
+    .orFail(() => new NotFoundError())
     .then((card) => res.status(200).send(card))
     .catch(next);
 }
@@ -57,7 +57,7 @@ const dislikeCard = (req, res, next) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(() => new Error('Not found'))
+    .orFail(() => new NotFoundError())
     .then((card) => res.status(200).send(card))
     .catch(next);
 }

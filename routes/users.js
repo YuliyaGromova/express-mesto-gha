@@ -16,7 +16,12 @@ router.get('/:id', celebrate({
   }),
 }), getUserById);
 
-router.patch('/me', updateUserInfo);
+router.patch('/me', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+  }),
+}), updateUserInfo);
 
 router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
