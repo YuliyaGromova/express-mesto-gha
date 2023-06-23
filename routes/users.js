@@ -8,32 +8,17 @@ const { getUsers, getUserById, updateUserInfo, updateUserAvatar, getUserInfo } =
 
 router.get('/', getUsers);
 
-router.get('/me', celebrate({
-  params: Joi.object().keys({
-    id: Joi.string().length(24),
-  }),
-}), getUserInfo);
+router.get('/me', getUserInfo);
 
 router.get('/:id', celebrate({
   params: Joi.object().keys({
-    id: Joi.string().length(24),
+    id: Joi.string().hex().length(24).required(),
   }),
 }), getUserById);
 
-router.patch('/me', celebrate({
-  params: Joi.object().keys({
-    id: Joi.string().length(24),
-  }),
-  body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-  }).unknown(true),
-}), updateUserInfo);
+router.patch('/me', updateUserInfo);
 
 router.patch('/me/avatar', celebrate({
-  params: Joi.object().keys({
-    id: Joi.string().length(24),
-  }),
   body: Joi.object().keys({
     avatar: Joi.string().pattern(reg),
   }).unknown(true),

@@ -7,6 +7,7 @@
 /* eslint-disable spaced-comment */
 const mongoose = require('mongoose');
 // const { validateURL } = require('../utils/validate-url-err');
+const validator = require('validator');
 
 const cardSchema = new mongoose.Schema({
 
@@ -19,6 +20,7 @@ const cardSchema = new mongoose.Schema({
   link: {
     type: String,
     required: true,
+    validate: [validator.isURL, 'Вы ввели некорректную ссылку'],
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,

@@ -7,12 +7,9 @@ const { reg } = require('../utils/validate-url-err');
 
 router.post('/signin', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(reg),
     email: Joi.string().email().required(),
     password: Joi.string().required(),
-  }).unknown(true),
+  }),
 }), login);
 
 router.post('/signup', celebrate({
@@ -22,11 +19,7 @@ router.post('/signup', celebrate({
     avatar: Joi.string().pattern(reg),
     email: Joi.string().required().email(),
     password: Joi.string().required(),
-  }).unknown(true),
+  }),
 }), createUser);
-
-router.all('/*', (req, res, next) => {
-  next(new Error('Маршрут не найден'));
-});
 
 module.exports = router;

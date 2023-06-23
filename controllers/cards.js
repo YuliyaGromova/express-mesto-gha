@@ -1,15 +1,18 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable quotes */
 /* eslint-disable object-curly-spacing */
 /* eslint-disable semi */
 const Card = require('../models/card');
+const { NotFoundError } = require('../errors/not-found-err');
+const { ForbiddenError } = require('../errors/forbidden-err');
+const {UnauthorizedError} = require('../errors/unauthorized-err');
 
 const getCards = async (req, res, next) => {
-  try {
-    const cards = await Card.find({});
-    res.status(200).send(cards);
-  } catch (err) {
-    next(err);
-  }
+  Card.find({})
+    .then((cards) => res.send(cards))
+    .catch((err) => {
+      next(err);
+    });
 };
 
 const createCard = (req, res, next) => {
@@ -17,23 +20,24 @@ const createCard = (req, res, next) => {
   Card.create({
     ...req.body,
   })
-    .then((card) => res.status(201).send(card))
+    .then((card) => res.send(card))
     .catch(next);
 };
 
 const deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
+    .orFail(() => new NotFoundError())
     .then((item) => {
       if (String(item.owner) === String(req.user._id)) {
         Card.deleteOne(item)
-          .orFail(() => new Error('Not found'))
+          .orFail(() => new NotFoundError())
           .then(() => res.status(200).send({ message: "Удаление карточки выполнено"}))
           .catch(next);
       } else {
-        res.status(403).send({ message: "Нельзя удалить чужую карточку"})
+        next(new ForbiddenError("Нельзя удалить чужую карточку"));
       }
     })
-    .catch(() => res.status(404).send({ message: "Карточка не найдена" }));
+    .catch((err) => next(new NotFoundError()));
 }
 
 const likeCard = (req, res, next) => {
