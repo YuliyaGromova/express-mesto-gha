@@ -55,6 +55,8 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       if (err.code === 11000) { // 409
         next(new UniqueError());
+      } else if (err.name === "ValidationError" || err.name === "CastError") { // 400
+        next(new ValidationError());
       } else {
         next(err);
       }
@@ -74,9 +76,7 @@ const updateUserInfo = (req, res, next) => {
     .orFail(() => new NotFoundError())
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === "ForbiddenError") {
-        next(new ForbiddenError());
-      } else if (err.name === "ValidationError" || err.name === "CastError") { // 400
+      if (err.name === "ValidationError" || err.name === "CastError") { // 400
         next(new ValidationError());
       } else {
         next(err);
@@ -95,7 +95,13 @@ const updateUserAvatar = (req, res, next) => {
   )
     .orFail(() => new NotFoundError())
     .then((user) => res.send(user))
-    .catch(next);
+    .catch((err) => {
+      if (err.name === "ValidationError" || err.name === "CastError") { // 400
+        next(new ValidationError());
+      } else {
+        next(err);
+      }
+    });
 };
 
 const login = (req, res, next) => {
